@@ -84,11 +84,3 @@ class ListComponent extends Component {
 }
 
 export default ListComponent
-
-
-const VisibleTodoList = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(TodoList)
-
-export default VisibleTodoList

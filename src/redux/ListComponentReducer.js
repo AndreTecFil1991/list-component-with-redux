@@ -53,18 +53,14 @@ function changeSort(type) {
 const ListComponentReducer = function reducer(state = [], action) {
     switch (action.type) {
         case 'HANDLE_PRODUCT_VOTE':
-            const result = this.handleProductVote(action.productID, action.type, state);
-
             return [
                 ...state,
-                result
+                this.handleProductVote(action.productID, action.type, state)
             ]
         case 'CHANGE_SORT':
-            const result = this.changeSort(action.type);
-
             return [
                 ...state,
-                result
+                this.changeSort(action.type)
             ]
         default:
             return state

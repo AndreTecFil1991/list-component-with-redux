@@ -7,7 +7,7 @@ import products from './js/MockData.js'
 import ListComponent from './listcomponent/ListComponent'
 import VotingComponent from './votingcomponent/VotingComponent'
 import SearchComponent from './searchcomponent/SearchComponent'
-import { reducers, initialState } from './redux/Reducers'
+import reducers from './redux/Reducers'
 
 //################################################################################################################################################################
 //########## REDUX ##############################################################################################################################################
