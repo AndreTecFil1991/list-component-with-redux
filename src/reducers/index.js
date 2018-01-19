@@ -203,33 +203,39 @@ function resetSearch(state) {
 }
 
 const reducer = () => function reducer(state = [], action) {
+  let result = '';
   switch (action.type) {
     //SearchComponent
     case 'DO_SEARCH':
+      result = this.doSearch(action.search, state)
       return [
         ...state,
-        this.doSearch(action.search, state)
+        result
       ]
     case 'RESET_SEARCH':
+      result = this.resetSearch(state)
       return [
         ...state,
-        this.resetSearch(state)
+        result
       ]
     case 'FILL_SEARCH_STATE_INFO':
+      result = this.fillSearchStateInfo(state)
       return [
         ...state,
-        this.fillSearchStateInfo(state)
+        result
       ]
     //ListComponent
     case 'HANDLE_PRODUCT_VOTE':
+      result = this.handleProductVote(action.productID, action.type, state)
       return [
         ...state,
-        this.handleProductVote(action.productID, action.type, state)
+        result
       ]
     case 'CHANGE_SORT':
+      result = this.changeSort(action.type)
       return [
         ...state,
-        this.changeSort(action.type)
+        result
       ]
     default:
       return state
