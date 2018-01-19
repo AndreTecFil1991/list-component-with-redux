@@ -139,7 +139,7 @@ function resetSearch(state) {
   }
 }
 
-const SearchComponentReducer = function reducer(state = [], action) {
+const SearchComponentReducer = () => function reducer(state = [], action) {
   switch (action.type) {
     case 'DO_SEARCH':
       return [
@@ -152,10 +152,10 @@ const SearchComponentReducer = function reducer(state = [], action) {
         this.resetSearch(state)
       ]
     case 'FILL_SEARCH_STATE_INFO':
-    return [
-      ...state,
-      this.fillSearchStateInfo(state)
-    ]    
+      return [
+        ...state,
+        this.fillSearchStateInfo(state)
+      ]
     default:
       return state
   }

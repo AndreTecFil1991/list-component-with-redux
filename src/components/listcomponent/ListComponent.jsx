@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import styled from 'react-emotion'
 import Item from './Item'
 

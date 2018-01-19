@@ -50,7 +50,7 @@ function changeSort(type) {
 }
 
 
-const ListComponentReducer = function reducer(state = [], action) {
+const ListComponentReducer = () => function reducer(state = [], action) {
     switch (action.type) {
         case 'HANDLE_PRODUCT_VOTE':
             return [

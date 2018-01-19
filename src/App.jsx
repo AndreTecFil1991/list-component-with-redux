@@ -1,46 +1,14 @@
 import React, { Component } from 'react'
 import styled from 'react-emotion'
-import { Provider } from 'react-redux'
-import { createStore } from 'redux'
 
-import products from './js/MockData.js'
-import ListComponent from './listcomponent/ListComponent'
-import VotingComponent from './votingcomponent/VotingComponent'
-import SearchComponent from './searchcomponent/SearchComponent'
-import reducers from './redux/Reducers'
+import ListComponent from './components/listcomponent/ListComponent'
+import VotingComponent from './components/votingcomponent/VotingComponent'
+import SearchComponent from './components/searchcomponent/SearchComponent'
 
 //################################################################################################################################################################
 //########## REDUX ##############################################################################################################################################
 //##############################################################################################################################################################
 
-/*handleSubmit = () => {
-  store.dispatch({
-      type: 'ADD_MESSAGE',
-      message: this.state.value
-  })
-}*/
-
-const initialState = {
-  products: products,
-  productsBackup: products,
-  sort: 'asc',
-  lastUpvoted: [],
-  lastDownvoted: [],
-  search: {
-    votesFrom: 0,
-    votesTo: 0,
-    title: '',
-    submittedBy: '',
-    submittedByToShow: []
-  }
-};
-
-let store = createStore(reducers, initialState);
-
-const listener = () => {
-  console.log('Current state: ', store.getState().votes);
-}
-store.subscribe(listener);
 
 
 //##############################################################################################################################################################
@@ -62,25 +30,10 @@ class App extends Component {
     this.filterByVotes = this.filterByVotes.bind(this);
     this.filterByTitle = this.filterByTitle.bind(this);
     this.filterBySubmittedBy = this.filterBySubmittedBy.bind(this);
-    //state
-    this.state = {
-      products: products,
-      productsBackup: products,
-      sort: 'asc',
-      lastUpvoted: [],
-      lastDownvoted: [],
-      search: {
-        votesFrom: 0,
-        votesTo: 0,
-        title: '',
-        submittedBy: '',
-        submittedByToShow: []
-      }
-    };
   }
 
   componentDidMount() {
-    store.subscribe(() => this.forceUpdate());
+    //store.subscribe(() => this.forceUpdate());
     this.fillSearchStateInfo();
   }
 
@@ -88,7 +41,7 @@ class App extends Component {
   //########## functions for SearchComponent ######################################################################################################################
   //##############################################################################################################################################################
   parseUsername(user) {
-    let username = '';
+    /*let username = '';
     //split to have the image name
     const firstSplit = user.split('/');
     //split to have only the username
@@ -102,11 +55,11 @@ class App extends Component {
         username += usernameAux[i];
     }
 
-    return username;
+    return username;*/
   }
 
   processSubmittedBy(submittedByToShow, user) {
-    let updated = false;
+    /*let updated = false;
 
     if (submittedByToShow.length > 0) {
       submittedByToShow.find(submittedBy => {
@@ -123,11 +76,11 @@ class App extends Component {
       });
     }
 
-    return submittedByToShow;
+    return submittedByToShow;*/
   }
 
   fillSearchStateInfo() {
-    const products = this.state.products.sort((a, b) => {
+    /*const products = this.state.products.sort((a, b) => {
       return a.votes - b.votes
     })
 
@@ -152,11 +105,11 @@ class App extends Component {
         votesTo,
         submittedByToShow
       }
-    })
+    })*/
   }
 
   filterByVotes(products, votesFrom, votesTo) {
-    let filteredProducts = [];
+    /*let filteredProducts = [];
 
     if (votesFrom.length === 0 && votesTo.length === 0)
       return products;
@@ -166,11 +119,11 @@ class App extends Component {
         filteredProducts.push(product);
     });
 
-    return filteredProducts;
+    return filteredProducts;*/
   }
 
   filterByTitle(products, title) {
-    let filteredProducts = [];
+    /*let filteredProducts = [];
 
     if (title.length === 0)
       return products;
@@ -180,22 +133,22 @@ class App extends Component {
         filteredProducts.push(product);
     });
 
-    return filteredProducts;
+    return filteredProducts;*/
   }
 
   filterBySubmittedBy(products, submittedBy) {
-    let filteredProducts = [];
+    /*let filteredProducts = [];
 
     products.find(product => {
       if (product.submitterAvatarUrl.toUpperCase().indexOf(submittedBy.toUpperCase()) > -1)
         filteredProducts.push(product);
     })
 
-    return filteredProducts;
+    return filteredProducts;*/
   }
 
   doSearch(search) {
-    let products = this.state.productsBackup;
+    /*let products = this.state.productsBackup;
     const votesFrom = search.votesFrom;
     const votesTo = search.votesTo;
     const title = search.title;
@@ -219,14 +172,14 @@ class App extends Component {
 
     this.setState(
       { products: filteredProducts }
-    )
+    )*/
 
   }
 
   resetSearch() {
-    this.setState({
+    /*this.setState({
       products: this.state.productsBackup
-    })
+    })*/
   }
   //##############################################################################################################################################################
   //########## end of functions for SearchComponent ###############################################################################################################
@@ -236,7 +189,7 @@ class App extends Component {
   //########## functions for ListComponent ########################################################################################################################
   //##############################################################################################################################################################
   processVote(votes, product) {
-    let updated = false;
+    /*let updated = false;
 
     if (votes.length > 0) {
       votes.find(voted => {
@@ -255,11 +208,11 @@ class App extends Component {
       });
     }
 
-    return votes;
+    return votes;*/
   }
 
   handleProductVote(productID, type) {
-    let products = this.state.products;
+    /*let products = this.state.products;
     let lastUpvoted = this.state.lastUpvoted;
     let lastDownvoted = this.state.lastDownvoted;
     products.find(product => {
@@ -279,11 +232,11 @@ class App extends Component {
       products,
       lastUpvoted,
       lastDownvoted
-    });
+    });*/
   }
 
   changeSort(type) {
-    this.setState({ sort: type })
+    /*this.setState({ sort: type })*/
   }
   //##############################################################################################################################################################
   //########## end of functions for ListComponent #################################################################################################################
@@ -335,10 +288,10 @@ class App extends Component {
     const votingComponentConfig = [
       {
         title: 'Last upvoted',
-        votes: this.state.lastUpvoted
+        votes: [] //this.state.lastUpvoted
       }, {
         title: 'Last downvoted',
-        votes: this.state.lastDownvoted
+        votes: [] //this.state.lastDownvoted
       }
     ]
 
@@ -348,15 +301,15 @@ class App extends Component {
         <Container>
           <LeftContainer>
             <SearchComponent
-              votesFrom={this.state.search.votesFrom}
-              votesTo={this.state.search.votesTo}
-              submittedByToShow={this.state.search.submittedByToShow}
+              votesFrom={ 11 /*this.state.search.votesFrom*/}
+              votesTo={ 66 /*this.state.search.votesTo*/}
+              submittedByToShow={ []/*this.state.search.submittedByToShow*/}
               resetSearch={this.resetSearch}
               doSearch={this.doSearch}
             />
             <ListComponent
-              sort={this.state.sort}
-              products={this.state.products}
+              sort={'asc' /*this.state.sort*/}
+              products={[] /*this.state.products*/}
               changeSort={this.changeSort}
               handleProductVote={this.handleProductVote}
             />
