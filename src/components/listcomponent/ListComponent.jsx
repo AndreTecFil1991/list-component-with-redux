@@ -16,7 +16,6 @@ class ListComponent extends Component {
             type: 'CHANGE_SORT',
             sortType: sortType
         });
-        //this.props.changeSort(type)
     }
 
     handleProductVote(productID, voteType) {
@@ -25,7 +24,6 @@ class ListComponent extends Component {
             productID: productID,
             voteType: voteType
         });
-        //this.props.handleProductVote(productID, type)
     }
 
     render() {
