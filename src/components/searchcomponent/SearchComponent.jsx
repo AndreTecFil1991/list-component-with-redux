@@ -10,8 +10,8 @@ class SearchComponent extends Component {
         this.resetSearch = this.resetSearch.bind(this);
         this.doSearch = this.doSearch.bind(this);
         this.localProps = {
-            votesFrom: store.getState().votesFrom,
-            votesTo: store.getState().votesTo,
+            votesFrom: store.getState().search.votesFrom,
+            votesTo: store.getState().search.votesTo,
             title: '',
             submittedBy: ''
         }
@@ -47,14 +47,12 @@ class SearchComponent extends Component {
             type: 'DO_SEARCH',
             search: this.localProps
         });
-        //this.props.doSearch(this.localProps);
     }
 
     resetSearch() {
         store.dispatch({
             type: 'RESET_SEARCH'
         });
-        //this.props.resetSearch();
     }
 
     render() {
@@ -147,7 +145,7 @@ class SearchComponent extends Component {
                 <Votes>
                     <label>Votes: </label>
                     <div>
-                        <input id="votesFrom" type="number" value={state.votesFrom} onChange={this.onChange} /><span> to </span><input id="votesTo" type="number" value={state.votesTo} onChange={this.onChange} />
+                        <input id="votesFrom" type="number" value={state.search.votesFrom} onChange={this.onChange} /><span> to </span><input id="votesTo" type="number" value={state.search.votesTo} onChange={this.onChange} />
                     </div>
                 </Votes>
                 <Title>

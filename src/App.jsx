@@ -209,20 +209,25 @@ function reducer(state, action) {
     //SearchComponent
     case 'DO_SEARCH':
       result = doSearch(action.search, state)
-      return result
+      Object.assign({}, state, result);
+      return state
     case 'RESET_SEARCH':
       result = resetSearch(state)
-      return result
+      Object.assign({}, state, result);
+      return state
     case 'FILL_SEARCH_STATE_INFO':
       result = fillSearchStateInfo(state)
-      return result
+      Object.assign({}, state, result);
+      return state
     //ListComponent
     case 'HANDLE_PRODUCT_VOTE':
       result = handleProductVote(action.productID, action.voteType, state)
-      return result
+      Object.assign({}, state, result);
+      return state
     case 'CHANGE_SORT':
       result = changeSort(action.sortType)
-      return result
+      Object.assign({}, state, result);
+      return state
     default:
       return state
   }
@@ -334,17 +339,3 @@ export class App extends Component {
     );
   }
 }
-
-/*<SearchComponent
-              votesFrom={store.getState().votesFrom}
-              votesTo={store.getState().votesTo}
-              submittedByToShow={store.getState().submittedByToShow}
-              resetSearch={resetSearch}
-              doSearch={doSearch}
-            />
-            <ListComponent
-              sort={store.getState().sort}
-              products={store.getState().products}
-              changeSort={changeSort}
-              handleProductVote={handleProductVote}
-            />*/
