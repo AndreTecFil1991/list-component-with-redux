@@ -1,246 +1,267 @@
 import React, { Component } from 'react'
 import styled from 'react-emotion'
+import { createStore } from 'redux'
 
 import ListComponent from './components/listcomponent/ListComponent'
 import VotingComponent from './components/votingcomponent/VotingComponent'
 import SearchComponent from './components/searchcomponent/SearchComponent'
 
+import products from './js/MockData.js'
+
 //################################################################################################################################################################
 //########## REDUX ##############################################################################################################################################
 //##############################################################################################################################################################
+function processVote(votes, product) {
+  let updated = false;
 
+  if (votes.length > 0) {
+    votes.find(voted => {
+      if (voted.id === product.id) {
+        Object.assign({}, voted, { counter: voted.counter++ });
+        updated = true;
+      }
+    });
+  }
 
+  if (!updated || votes.length === 0) {
+    votes.push({
+      id: product.id,
+      title: product.title,
+      counter: 1
+    });
+  }
+
+  return votes;
+}
+
+function handleProductVote(productID, voteType, state) {
+  let products = state.products;
+  let lastUpvoted = state.lastUpvoted;
+  let lastDownvoted = state.lastDownvoted;
+  products.find(product => {
+    if (product.id === productID) {
+      if (voteType === "up") {
+        Object.assign({}, product, { votes: product.votes++ });
+        lastUpvoted = processVote(lastUpvoted, product);
+      }
+      else {
+        Object.assign({}, product, { votes: product.votes-- });
+        lastDownvoted = processVote(lastDownvoted, product);
+      }
+    }
+  });
+
+  return {
+    products,
+    lastUpvoted,
+    lastDownvoted
+  };
+}
+
+function changeSort(sortType) {
+  return { sort: sortType }
+}
+
+function parseUsername(user) {
+  let username = '';
+  //split to have the image name
+  const firstSplit = user.split('/');
+  //split to have only the username
+  const secondSplit = firstSplit[firstSplit.length - 1].split('.');
+
+  if (secondSplit.length > 0) {
+    let usernameAux = secondSplit[0];
+    username = usernameAux[0].toUpperCase();
+
+    for (let i = 1; i < usernameAux.length; i++)
+      username += usernameAux[i];
+  }
+
+  return username;
+}
+
+function processSubmittedBy(submittedByToShow, user) {
+  let updated = false;
+
+  if (submittedByToShow.length > 0) {
+    submittedByToShow.find(submittedBy => {
+      if (submittedBy.userimage === user) {
+        updated = true;
+      }
+    });
+  }
+
+  if (!updated || submittedByToShow.length === 0) {
+    submittedByToShow.push({
+      username: parseUsername(user),
+      userimage: user
+    });
+  }
+
+  return submittedByToShow;
+}
+
+function fillSearchStateInfo(state) {
+  const products = state.products.sort((a, b) => {
+    return a.votes - b.votes
+  })
+
+  const votesFrom = products[0].votes;
+  const votesTo = products[products.length - 1].votes;
+
+  //1st object empty to allow searches without selection
+  let submittedByToShow = [
+    {
+      username: '-- select an option --',
+      userimage: ''
+    }
+  ];
+
+  for (let i = 0; i < products.length; i++) {
+    submittedByToShow = processSubmittedBy(submittedByToShow, products[i].submitterAvatarUrl);
+  }
+
+  return {
+    search: {
+      votesFrom,
+      votesTo,
+      submittedByToShow
+    }
+  }
+}
+
+function filterByVotes(products, votesFrom, votesTo) {
+  let filteredProducts = [];
+
+  if (votesFrom.length === 0 && votesTo.length === 0)
+    return products;
+
+  products.find(product => {
+    if ((votesFrom.length === 0 && product.votes <= votesTo) || (product.votes >= votesFrom && votesTo.length === 0) || (product.votes >= votesFrom && product.votes <= votesTo))
+      filteredProducts.push(product);
+  });
+
+  return filteredProducts;
+}
+
+function filterByTitle(products, title) {
+  let filteredProducts = [];
+
+  if (title.length === 0)
+    return products;
+
+  products.find(product => {
+    if (product.title.toUpperCase().indexOf(title.toUpperCase()) > -1)
+      filteredProducts.push(product);
+  });
+
+  return filteredProducts;
+}
+
+function filterBySubmittedBy(products, submittedBy) {
+  let filteredProducts = [];
+
+  products.find(product => {
+    if (product.submitterAvatarUrl.toUpperCase().indexOf(submittedBy.toUpperCase()) > -1)
+      filteredProducts.push(product);
+  })
+
+  return filteredProducts;
+}
+
+function doSearch(search, state) {
+  let products = state.productsBackup;
+  const votesFrom = search.votesFrom;
+  const votesTo = search.votesTo;
+  const title = search.title;
+  const submittedBy = search.submittedBy;
+
+  let filteredProducts = [];
+
+  if (search.votesFrom || search.votesTo) {
+    filteredProducts = filterByVotes(products, votesFrom, votesTo);
+    products = filteredProducts;
+  }
+
+  if (title.length > 0) {
+    filteredProducts = filterByTitle(products, title);
+    products = filteredProducts;
+  }
+
+  if (submittedBy.indexOf('--') === -1) {
+    filteredProducts = filterBySubmittedBy(products, submittedBy);
+  }
+
+  return {
+    products: filteredProducts
+  }
+}
+
+function resetSearch(state) {
+  return {
+    products: state.productsBackup
+  }
+}
+
+function reducer(state, action) {
+  let result = '';
+  switch (action.type) {
+    //SearchComponent
+    case 'DO_SEARCH':
+      result = doSearch(action.search, state)
+      return result
+    case 'RESET_SEARCH':
+      result = resetSearch(state)
+      return result
+    case 'FILL_SEARCH_STATE_INFO':
+      result = fillSearchStateInfo(state)
+      return result
+    //ListComponent
+    case 'HANDLE_PRODUCT_VOTE':
+      result = handleProductVote(action.productID, action.voteType, state)
+      return result
+    case 'CHANGE_SORT':
+      result = changeSort(action.sortType)
+      return result
+    default:
+      return state
+  }
+}
+
+const initialState = {
+  products: products,
+  productsBackup: products,
+  sort: 'asc',
+  lastUpvoted: [],
+  lastDownvoted: [],
+  search: {
+    votesFrom: 0,
+    votesTo: 0,
+    title: '',
+    submittedBy: '',
+    submittedByToShow: []
+  }
+};
+
+export const store = createStore(reducer, initialState);
+
+const listener = () => {
+  console.log('Current state: ', store.getState());
+}
+store.subscribe(listener);
 
 //##############################################################################################################################################################
 //###############################################################################################################################################################
 //################################################################################################################################################################
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    //functions scope bind
-    this.handleProductVote = this.handleProductVote.bind(this);
-    this.changeSort = this.changeSort.bind(this);
-    this.processVote = this.processVote.bind(this);
-    this.fillSearchStateInfo = this.fillSearchStateInfo.bind(this);
-    this.parseUsername = this.parseUsername.bind(this);
-    this.processSubmittedBy = this.processSubmittedBy.bind(this);
-    this.resetSearch = this.resetSearch.bind(this);
-    this.doSearch = this.doSearch.bind(this);
-    this.filterByVotes = this.filterByVotes.bind(this);
-    this.filterByTitle = this.filterByTitle.bind(this);
-    this.filterBySubmittedBy = this.filterBySubmittedBy.bind(this);
-  }
-
+export class App extends Component {
   componentDidMount() {
-    //store.subscribe(() => this.forceUpdate());
-    this.fillSearchStateInfo();
-  }
+    store.subscribe(() => this.forceUpdate());
 
-  //################################################################################################################################################################
-  //########## functions for SearchComponent ######################################################################################################################
-  //##############################################################################################################################################################
-  parseUsername(user) {
-    /*let username = '';
-    //split to have the image name
-    const firstSplit = user.split('/');
-    //split to have only the username
-    const secondSplit = firstSplit[firstSplit.length - 1].split('.');
-
-    if (secondSplit.length > 0) {
-      let usernameAux = secondSplit[0];
-      username = usernameAux[0].toUpperCase();
-
-      for (let i = 1; i < usernameAux.length; i++)
-        username += usernameAux[i];
-    }
-
-    return username;*/
-  }
-
-  processSubmittedBy(submittedByToShow, user) {
-    /*let updated = false;
-
-    if (submittedByToShow.length > 0) {
-      submittedByToShow.find(submittedBy => {
-        if (submittedBy.userimage === user) {
-          updated = true;
-        }
-      });
-    }
-
-    if (!updated || submittedByToShow.length === 0) {
-      submittedByToShow.push({
-        username: this.parseUsername(user),
-        userimage: user
-      });
-    }
-
-    return submittedByToShow;*/
-  }
-
-  fillSearchStateInfo() {
-    /*const products = this.state.products.sort((a, b) => {
-      return a.votes - b.votes
+    store.dispatch({
+      type: 'FILL_SEARCH_STATE_INFO'
     })
-
-    const votesFrom = products[0].votes;
-    const votesTo = products[products.length - 1].votes;
-
-    //1st object empty to allow searches without selection
-    let submittedByToShow = [
-      {
-        username: '-- select an option --',
-        userimage: ''
-      }
-    ];
-
-    for (let i = 0; i < products.length; i++) {
-      submittedByToShow = this.processSubmittedBy(submittedByToShow, products[i].submitterAvatarUrl);
-    }
-
-    this.setState({
-      search: {
-        votesFrom,
-        votesTo,
-        submittedByToShow
-      }
-    })*/
   }
-
-  filterByVotes(products, votesFrom, votesTo) {
-    /*let filteredProducts = [];
-
-    if (votesFrom.length === 0 && votesTo.length === 0)
-      return products;
-
-    products.find(product => {
-      if ((votesFrom.length === 0 && product.votes <= votesTo) || (product.votes >= votesFrom && votesTo.length === 0) || (product.votes >= votesFrom && product.votes <= votesTo))
-        filteredProducts.push(product);
-    });
-
-    return filteredProducts;*/
-  }
-
-  filterByTitle(products, title) {
-    /*let filteredProducts = [];
-
-    if (title.length === 0)
-      return products;
-
-    products.find(product => {
-      if (product.title.toUpperCase().indexOf(title.toUpperCase()) > -1)
-        filteredProducts.push(product);
-    });
-
-    return filteredProducts;*/
-  }
-
-  filterBySubmittedBy(products, submittedBy) {
-    /*let filteredProducts = [];
-
-    products.find(product => {
-      if (product.submitterAvatarUrl.toUpperCase().indexOf(submittedBy.toUpperCase()) > -1)
-        filteredProducts.push(product);
-    })
-
-    return filteredProducts;*/
-  }
-
-  doSearch(search) {
-    /*let products = this.state.productsBackup;
-    const votesFrom = search.votesFrom;
-    const votesTo = search.votesTo;
-    const title = search.title;
-    const submittedBy = search.submittedBy;
-
-    let filteredProducts = [];
-
-    if (search.votesFrom || search.votesTo) {
-      filteredProducts = this.filterByVotes(products, votesFrom, votesTo);
-      products = filteredProducts;
-    }
-
-    if (title.length > 0) {
-      filteredProducts = this.filterByTitle(products, title);
-      products = filteredProducts;
-    }
-
-    if (submittedBy.indexOf('--') === -1) {
-      filteredProducts = this.filterBySubmittedBy(products, submittedBy);
-    }
-
-    this.setState(
-      { products: filteredProducts }
-    )*/
-
-  }
-
-  resetSearch() {
-    /*this.setState({
-      products: this.state.productsBackup
-    })*/
-  }
-  //##############################################################################################################################################################
-  //########## end of functions for SearchComponent ###############################################################################################################
-  //################################################################################################################################################################
-
-  //################################################################################################################################################################
-  //########## functions for ListComponent ########################################################################################################################
-  //##############################################################################################################################################################
-  processVote(votes, product) {
-    /*let updated = false;
-
-    if (votes.length > 0) {
-      votes.find(voted => {
-        if (voted.id === product.id) {
-          Object.assign({}, voted, { counter: voted.counter++ });
-          updated = true;
-        }
-      });
-    }
-
-    if (!updated || votes.length === 0) {
-      votes.push({
-        id: product.id,
-        title: product.title,
-        counter: 1
-      });
-    }
-
-    return votes;*/
-  }
-
-  handleProductVote(productID, type) {
-    /*let products = this.state.products;
-    let lastUpvoted = this.state.lastUpvoted;
-    let lastDownvoted = this.state.lastDownvoted;
-    products.find(product => {
-      if (product.id === productID) {
-        if (type === "up") {
-          Object.assign({}, product, { votes: product.votes++ });
-          lastUpvoted = this.processVote(lastUpvoted, product);
-        }
-        else {
-          Object.assign({}, product, { votes: product.votes-- });
-          lastDownvoted = this.processVote(lastDownvoted, product);
-        }
-      }
-    });
-
-    this.setState({
-      products,
-      lastUpvoted,
-      lastDownvoted
-    });*/
-  }
-
-  changeSort(type) {
-    /*this.setState({ sort: type })*/
-  }
-  //##############################################################################################################################################################
-  //########## end of functions for ListComponent #################################################################################################################
-  //################################################################################################################################################################
 
   render() {
     //CSS with emotion
@@ -288,10 +309,10 @@ class App extends Component {
     const votingComponentConfig = [
       {
         title: 'Last upvoted',
-        votes: [] //this.state.lastUpvoted
+        votes: store.getState().lastUpvoted
       }, {
         title: 'Last downvoted',
-        votes: [] //this.state.lastDownvoted
+        votes: store.getState().lastDownvoted
       }
     ]
 
@@ -300,19 +321,8 @@ class App extends Component {
         <H1>Items list</H1>
         <Container>
           <LeftContainer>
-            <SearchComponent
-              votesFrom={ 11 /*this.state.search.votesFrom*/}
-              votesTo={ 66 /*this.state.search.votesTo*/}
-              submittedByToShow={ []/*this.state.search.submittedByToShow*/}
-              resetSearch={this.resetSearch}
-              doSearch={this.doSearch}
-            />
-            <ListComponent
-              sort={'asc' /*this.state.sort*/}
-              products={[] /*this.state.products*/}
-              changeSort={this.changeSort}
-              handleProductVote={this.handleProductVote}
-            />
+            <SearchComponent />
+            <ListComponent />
           </LeftContainer>
           <RightContainer>
             <VotingComponent
@@ -325,4 +335,16 @@ class App extends Component {
   }
 }
 
-export default App
+/*<SearchComponent
+              votesFrom={store.getState().votesFrom}
+              votesTo={store.getState().votesTo}
+              submittedByToShow={store.getState().submittedByToShow}
+              resetSearch={resetSearch}
+              doSearch={doSearch}
+            />
+            <ListComponent
+              sort={store.getState().sort}
+              products={store.getState().products}
+              changeSort={changeSort}
+              handleProductVote={handleProductVote}
+            />*/

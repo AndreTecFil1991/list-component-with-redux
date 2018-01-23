@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import styled from 'react-emotion'
 
+import { store } from '../../App'
+
 class SearchComponent extends Component {
     constructor(props) {
         super(props);
@@ -8,8 +10,8 @@ class SearchComponent extends Component {
         this.resetSearch = this.resetSearch.bind(this);
         this.doSearch = this.doSearch.bind(this);
         this.localProps = {
-            votesFrom: this.props.votesFrom,
-            votesTo: this.props.votesTo,
+            votesFrom: store.getState().votesFrom,
+            votesTo: store.getState().votesTo,
             title: '',
             submittedBy: ''
         }
@@ -41,11 +43,18 @@ class SearchComponent extends Component {
     }
 
     doSearch() {
-        this.props.doSearch(this.localProps);
+        store.dispatch({
+            type: 'DO_SEARCH',
+            search: this.localProps
+        });
+        //this.props.doSearch(this.localProps);
     }
 
     resetSearch() {
-        this.props.resetSearch();
+        store.dispatch({
+            type: 'RESET_SEARCH'
+        });
+        //this.props.resetSearch();
     }
 
     render() {
@@ -127,8 +136,9 @@ class SearchComponent extends Component {
                 }
             }
         `
+        const state = store.getState();
 
-        const options = this.props.submittedByToShow.map((submittedBy, index) => (
+        const options = state.search.submittedByToShow.map((submittedBy, index) => (
             <option key={submittedBy.username + index} value={submittedBy.username}>{submittedBy.username}</option>
         ));
 
@@ -137,7 +147,7 @@ class SearchComponent extends Component {
                 <Votes>
                     <label>Votes: </label>
                     <div>
-                        <input id="votesFrom" type="number" value={this.props.votesFrom} onChange={this.onChange} /><span> to </span><input id="votesTo" type="number" value={this.props.votesTo} onChange={this.onChange} />
+                        <input id="votesFrom" type="number" value={state.votesFrom} onChange={this.onChange} /><span> to </span><input id="votesTo" type="number" value={state.votesTo} onChange={this.onChange} />
                     </div>
                 </Votes>
                 <Title>
@@ -151,7 +161,7 @@ class SearchComponent extends Component {
                     </select>
                 </SubmittedBy>
                 <Buttons>
-                    <input type="submit" value="Search" onClick={this.doSearch}/>
+                    <input type="submit" value="Search" onClick={this.doSearch} />
                     <input type="reset" onClick={this.resetSearch} />
                 </Buttons>
             </Container>

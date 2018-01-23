@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import styled from 'react-emotion'
 import Item from './Item'
 
+import { store } from '../../App'
+
 class ListComponent extends Component {
     constructor(props) {
         super(props);
@@ -9,12 +11,21 @@ class ListComponent extends Component {
         this.handleProductVote = this.handleProductVote.bind(this);
     }
 
-    changeSort(type) {
-        this.props.changeSort(type)
+    changeSort(sortType) {
+        store.dispatch({
+            type: 'CHANGE_SORT',
+            sortType: sortType
+        });
+        //this.props.changeSort(type)
     }
 
-    handleProductVote(productID, type) {
-        this.props.handleProductVote(productID, type)
+    handleProductVote(productID, voteType) {
+        store.dispatch({
+            type: 'HANDLE_PRODUCT_VOTE',
+            productID: productID,
+            voteType: voteType
+        });
+        //this.props.handleProductVote(productID, type)
     }
 
     render() {
@@ -51,8 +62,10 @@ class ListComponent extends Component {
             background: transparent;
         `
 
-        const sort = this.props.sort
-        const products = this.props.products.sort((a, b) => {
+        const state = store.getState();
+
+        const sort = state.sort
+        const products = state.products.sort((a, b) => {
             return sort === 'desc' ? (b.votes - a.votes) : (a.votes - b.votes)
         })
         let productComponents = products.map(product => (

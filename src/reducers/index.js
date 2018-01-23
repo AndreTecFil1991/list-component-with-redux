@@ -1,15 +1,3 @@
-/*import { combineReducers } from 'redux'
-import SearchComponentReducer from './SearchComponentReducer.js'
-import ListComponentReducer from './ListComponentReducer.js'
-
-const reducers = combineReducers({
-  SearchComponentReducer,
-  ListComponentReducer
-})
-
-export default reducers*/
-
-
 function processVote(votes, product) {
   let updated = false;
 
@@ -202,7 +190,7 @@ function resetSearch(state) {
   }
 }
 
-const reducer = () => function reducer(state = [], action) {
+const reducer = function reducer(state = [], action) {
   let result = '';
   switch (action.type) {
     //SearchComponent
