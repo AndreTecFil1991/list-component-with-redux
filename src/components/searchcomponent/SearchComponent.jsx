@@ -4,25 +4,45 @@ import styled from 'react-emotion'
 import { store } from '../../App'
 
 class SearchComponent extends Component {
+    constructor(props) {
+        super(props);
+        this.onChange = this.onChange.bind(this);
+        this.doSearch = this.doSearch.bind(this);
+        this.localProps = {
+            votesFrom: store.getState().search.votesFrom,
+            votesTo: store.getState().search.votesTo,
+            title: '',
+            submittedBy: ''
+        }
+    }
     onChange(event) {
         let origin = event.nativeEvent.target.id;
-        let data = ''
 
-        if (origin === 'submittedBy')
-            data = event.nativeEvent.target.selectedOptions[0].value;
-        else
-            data = event.nativeEvent.target.value;
+        switch (origin) {
+            case 'submittedBy':
+                this.localProps.submittedBy = event.nativeEvent.target.selectedOptions[0].value;
+                break;
 
-        store.dispatch({
-            type: 'ON_SEARCH_DATA_CHANGE',
-            origin: origin,
-            data: data
-        })
+            case 'votesFrom':
+                this.localProps.votesFrom = event.nativeEvent.target.value;
+                break;
+            case 'votesTo':
+                this.localProps.votesTo = event.nativeEvent.target.value;
+                break;
+
+            case 'title':
+                this.localProps.title = event.nativeEvent.target.value;
+                break;
+
+            default:
+                break;
+        }
     }
 
     doSearch() {
         store.dispatch({
-            type: 'DO_SEARCH'
+            type: 'DO_SEARCH',
+            search: this.localProps
         });
     }
 
@@ -31,7 +51,7 @@ class SearchComponent extends Component {
             type: 'RESET_SEARCH'
         });
     }
-
+    
     render() {
         const Container = styled('div') `
             width: 100%;
@@ -122,7 +142,7 @@ class SearchComponent extends Component {
                 <Votes>
                     <label>Votes: </label>
                     <div>
-                        <input id="votesFrom" type="number" value={state.search.votesFrom} onChange={this.onChange} /><span> to </span><input id="votesTo" type="number" value={state.search.votesTo} onChange={this.onChange} />
+                        <input id="votesFrom" type="text" value={state.search.votesFrom} onChange={this.onChange} /><span> to </span><input id="votesTo" type="text" value={state.search.votesTo} onChange={this.onChange} />
                     </div>
                 </Votes>
                 <Title>
