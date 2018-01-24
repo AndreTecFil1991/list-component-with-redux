@@ -190,6 +190,10 @@ function processVote(votes, product) {
     }
   }
   
+  function onSearchDataChange(origin, data, state) {
+
+  }
+
   export default function reducer(state, action) {
     let result = '';
     switch (action.type) {
@@ -205,6 +209,10 @@ function processVote(votes, product) {
       case 'FILL_SEARCH_STATE_INFO':
         result = fillSearchStateInfo(state)
         Object.assign({}, state, result);
+        return state
+      case 'ON_SEARCH_DATA_CHANGE':
+        result = onSearchDataChange(action.origin, action.data, state)
+        Object.assign({}, state, result)
         return state
       //ListComponent
       case 'HANDLE_PRODUCT_VOTE':

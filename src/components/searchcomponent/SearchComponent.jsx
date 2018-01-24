@@ -4,48 +4,25 @@ import styled from 'react-emotion'
 import { store } from '../../App'
 
 class SearchComponent extends Component {
-    constructor(props) {
-        super(props);
-        this.onChange = this.onChange.bind(this);
-        this.resetSearch = this.resetSearch.bind(this);
-        this.doSearch = this.doSearch.bind(this);
-        this.localProps = {
-            votesFrom: store.getState().search.votesFrom,
-            votesTo: store.getState().search.votesTo,
-            title: '',
-            submittedBy: ''
-        }
-    }
-
     onChange(event) {
         let origin = event.nativeEvent.target.id;
+        let data = ''
 
-        switch (origin) {
-            case 'submittedBy':
-                this.localProps.submittedBy = event.nativeEvent.target.selectedOptions[0].value;
-                break;
+        if (origin === 'submittedBy')
+            data = event.nativeEvent.target.selectedOptions[0].value;
+        else
+            data = event.nativeEvent.target.value;
 
-            case 'votesFrom':
-                this.localProps.votesFrom = event.nativeEvent.target.value;
-                break;
-
-            case 'votesTo':
-                this.localProps.votesTo = event.nativeEvent.target.value;
-                break;
-
-            case 'title':
-                this.localProps.title = event.nativeEvent.target.value;
-                break;
-
-            default:
-                break;
-        }
+        store.dispatch({
+            type: 'ON_SEARCH_DATA_CHANGE',
+            origin: origin,
+            data: data
+        })
     }
 
     doSearch() {
         store.dispatch({
-            type: 'DO_SEARCH',
-            search: this.localProps
+            type: 'DO_SEARCH'
         });
     }
 
